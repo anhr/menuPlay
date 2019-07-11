@@ -41,6 +41,8 @@ export function create( elContainer, elCanvas, options ) {
 
 				{
 					name: 'Mono',
+					radio: true,
+					checked: true,
 					onclick: function ( event ) {
 
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
@@ -51,6 +53,7 @@ export function create( elContainer, elCanvas, options ) {
 				},
 				{
 					name: 'Side by side',
+					radio: true,
 					onclick: function ( event ) {
 
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
@@ -61,6 +64,7 @@ export function create( elContainer, elCanvas, options ) {
 				},
 				{
 					name: 'Top and bottom',
+					radio: true,
 					onclick: function ( event ) {
 
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
@@ -132,32 +136,44 @@ export function create( elContainer, elCanvas, options ) {
 		}
 
 	} );
+	var group = playController.getGroup();
 	menu.push( {
 
-		name: '<input type="range" min="1" max="100" value="50" class="slider" id="myRange">',
+		name: '<input type="range" min="0" max="' + ( group.children.length - 1 ) + '" value="0" class="slider" id="sliderPosition">',
 		style: 'float: right;',
-		title: 'current position of the playing',
+		title: sliderTitle + 0,
 
 	} );
-	elMenu = dropdownMenuCreate( menu,
-		{
+	elMenu = dropdownMenuCreate( menu, {
 
-			elParent: typeof elContainer === "string" ? document.getElementById( elContainer) : elContainer,
-			canvas: typeof elCanvas === "string" ? document.getElementById( elCanvas ) : elCanvas,
-			decorations: 'Transparent',
+		elParent: typeof elContainer === "string" ? document.getElementById( elContainer) : elContainer,
+		canvas: typeof elCanvas === "string" ? document.getElementById( elCanvas ) : elCanvas,
+		decorations: 'Transparent',
 
-		} );
+	} );
+	var elSlider = elMenu.querySelector( '#sliderPosition' );
+	elSlider.onchange = function ( event ) {
+
+		//console.log( 'position: ' + elSlider.value );
+		playController.selectObject3D( elSlider.value );
+
+	};
 
 	setFullScreenButton();
 
 }
-var elMenu;
+var elMenu, elSlider, sliderTitle = 'current position of the playing is ';
+/**
+ * sets size of the slider element of the menu
+ * @param {Number} width width of the canvas
+ * @param {Number} height height of the canvas
+ */
 export function setSize( width, height ) {
 
 	if ( elMenu === undefined )
 		return;
-	var itemWidth = 0, elSlider;
-//	elMenu.childNodes.forEach( function ( menuItem )
+	var itemWidth = 0;
+	//elMenu.childNodes.forEach( function ( menuItem )not compatible with IE 11
 	for ( var i = 0; i < elMenu.childNodes.length; i++ ){
 
 		var menuItem = elMenu.childNodes[ i ];
@@ -189,5 +205,11 @@ export function setSize( width, height ) {
 */
 
 	}
+
+}
+export function setIndex( index ) {
+
+	elSlider.value = index;
+	elSlider.title = sliderTitle + index;
 
 }

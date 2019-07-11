@@ -2585,15 +2585,15 @@ var PlayController = function (_controllers$CustomCo) {
 	function PlayController(group, events) {
 		classCallCheck(this, PlayController);
 		events = events || {};
-		var _playNext, _prev, _play, _repeat, _next;
+		var _playNext, _prev, _play, _repeat, _next, _getGroup, _selectObject3D;
 		var _this2 = possibleConstructorReturn(this, (PlayController.__proto__ || Object.getPrototypeOf(PlayController)).call(this, {
 			playRate: 1,
 			property: function property(customController) {
 				var buttons = {};
-				function RenamePlayButtons(innerHTML, title) {
+				function RenamePlayButtons(innerHTML, title, play) {
 					buttons.buttonPlay.innerHTML = innerHTML;
 					buttons.buttonPlay.title = title;
-					if (events.onRenamePlayButton !== undefined) events.onRenamePlayButton(innerHTML, title);
+					if (events.onRenamePlayButton !== undefined) events.onRenamePlayButton(innerHTML, title, play);
 				}
 				var selectObject3DIndex = -1;
 				function play() {
@@ -2603,12 +2603,11 @@ var PlayController = function (_controllers$CustomCo) {
 					for (var i = 0; i < group.children.length; i++) {
 						var objects3DItem = group.children[i];
 						if (selectObject3DIndex === i) {
-							if (events.onShowObject3D !== undefined) events.onShowObject3D(objects3DItem);
+							if (events.onShowObject3D !== undefined) events.onShowObject3D(objects3DItem, selectObject3DIndex);
 						} else {
 							if (events.onHideObject3D !== undefined) events.onHideObject3D(objects3DItem);
 						}
 					}
-					RenamePlayButtons(lang.pause, lang.pauseTitle);
 				}
 				function pause() {
 					for (var i = 0; i < group.children.length; i++) {
@@ -2634,15 +2633,7 @@ var PlayController = function (_controllers$CustomCo) {
 				}
 				_playNext = playNext;
 				function prev() {
-					if (selectObject3DIndex === -1) selectObject3DIndex = group.children.length;
-					var objects3DItem = group.children[selectObject3DIndex];
-					if (objects3DItem !== undefined) {
-						if (events.onRestoreObject3D !== undefined) events.onRestoreObject3D(objects3DItem);
-					}
-					selectObject3DIndex--;
-					if (selectObject3DIndex < 0) selectObject3DIndex = group.children.length - 1;
-					objects3DItem = group.children[selectObject3DIndex];
-					if (events.onSelectedObject3D !== undefined) events.onSelectedObject3D(objects3DItem);
+					selectObject3D(selectObject3DIndex - 1);
 				}
 				_prev = prev;
 				buttons.buttonPrev = addButton(lang.prevSymbol, lang.prevSymbolTitle, prev);
@@ -2650,6 +2641,7 @@ var PlayController = function (_controllers$CustomCo) {
 					if (buttons.buttonPlay.innerHTML === lang.playSymbol) {
 						group.userData.timerId = -1;
 						play(group, events);
+						RenamePlayButtons(lang.pause, lang.pauseTitle, true);
 						group.userData.timerId = setInterval(playNext, 1000 / customController.controller.getValue());
 					} else pause();
 				}
@@ -2671,17 +2663,27 @@ var PlayController = function (_controllers$CustomCo) {
 				_repeat = repeat;
 				buttons.buttonRepeat = addButton(lang.repeat, lang.repeatOn, repeat);
 				function next(value) {
+					selectObject3D(selectObject3DIndex + 1);
+				}
+				_next = next;
+				buttons.buttonNext = addButton(lang.nextSymbol, lang.nextSymbolTitle, next);
+				function selectObject3D(index) {
+					if (selectObject3DIndex === -1) selectObject3DIndex = group.children.length;
 					var objects3DItem = group.children[selectObject3DIndex];
 					if (objects3DItem !== undefined) {
 						if (events.onRestoreObject3D !== undefined) events.onRestoreObject3D(objects3DItem);
 					}
-					selectObject3DIndex++;
+					selectObject3DIndex = index;
 					if (selectObject3DIndex >= group.children.length) selectObject3DIndex = 0;
+					if (selectObject3DIndex < 0) selectObject3DIndex = group.children.length - 1;
 					objects3DItem = group.children[selectObject3DIndex];
-					if (events.onSelectedObject3D !== undefined) events.onSelectedObject3D(objects3DItem);
+					if (events.onSelectedObject3D !== undefined) events.onSelectedObject3D(objects3DItem, selectObject3DIndex);
 				}
-				_next = next;
-				buttons.buttonNext = addButton(lang.nextSymbol, lang.nextSymbolTitle, next);
+				_selectObject3D = selectObject3D;
+				function getGroup() {
+					return group;
+				}
+				_getGroup = getGroup;
 				return buttons;
 			}
 		}, 'playRate', 1, 25, 1));
@@ -2701,6 +2703,12 @@ var PlayController = function (_controllers$CustomCo) {
 		};
 		_this2.next = function () {
 			_next();
+		};
+		_this2.getGroup = function () {
+			return _getGroup();
+		};
+		_this2.selectObject3D = function (index) {
+			_selectObject3D(parseInt(index));
 		};
 		return _this2;
 	}
@@ -2904,7 +2912,26 @@ function sync$1(src, options) {
 		options.onerror('duplicate downloading of the ' + src + ' file');
 		return;
 	}
-	loadScriptBase(function (script) {
+	if (src instanceof Array) {
+		var error,
+		    optionsItem = {
+			appendTo: options.appendTo,
+			tag: options.tag,
+			onerror: function (str) {
+				options.onerror(str);
+				error = str;
+			}
+		};
+		for (var i = 0; i < src.length; i++) {
+			var item = src[i];
+			loadScriptBase(function (script) {
+				script.setAttribute("id", item);
+				script.innerHTML = sync(item, optionsItem);
+			}, optionsItem);
+			if (error !== undefined) break;
+		}
+		if (error === undefined) options.onload();
+	} else loadScriptBase(function (script) {
 		script.setAttribute("id", src);
 		script.innerHTML = sync(src, options);
 	}, options);
@@ -2998,9 +3025,9 @@ var loadScript = {
 
 var optionsStyle = {
 	tag: 'style'
-};loadScript.sync('../../styles/menu.css', optionsStyle);
-loadScript.sync('../../styles/Decorations/transparent.css', optionsStyle);
-loadScript.sync('../../styles/Decorations/gradient.css', optionsStyle);
+};loadScript.sync('https://raw.githack.com/anhr/DropdownMenu/master/styles/menu.css', optionsStyle);
+loadScript.sync('https://raw.githack.com/anhr/DropdownMenu/master/styles/Decorations/transparent.css', optionsStyle);
+loadScript.sync('https://raw.githack.com/anhr/DropdownMenu/master/styles/Decorations/gradient.css', optionsStyle);
 function create$1(arrayMenu, options) {
 	options = options || {};
 	options.elParent = options.elParent || document.querySelector('body');
@@ -3038,9 +3065,9 @@ function create$1(arrayMenu, options) {
 			}, 0);
 		}
 		var elMenuButton = document.createElement('span');
-		elMenuButton.className =
-		'menuButton' + (options.decorations === undefined ? '' : ' menuButton' + options.decorations);
+		elMenuButton.className = 'menuButton' + (options.decorations === undefined ? '' : ' menuButton' + options.decorations);
 		if (menuItem.style !== undefined) elMenuButton.style.cssText = menuItem.style;
+		if (menuItem.radio !== undefined) elMenuButton.style.cssText = menuItem.style;
 		if (menuItem.onclick !== undefined) elMenuButton.onclick = menuItem.onclick;
 		if (menuItem.id !== undefined) elMenuButton.id = menuItem.id;
 		var name;
@@ -3066,16 +3093,51 @@ function create$1(arrayMenu, options) {
 			elDropdownChild.title = '';
 			elMenuButton.appendChild(elDropdownChild);
 			menuItem.items.forEach(function (itemItem) {
-				var elName = document.createElement('nobr');
+				var elName = document.createElement('nobr'),
+				    classChecked = 'checked';
+				function getItemName(item) {
+					var str = typeof item === 'string' ? item : item.radio === true ? (item.checked ? '◉' : '◎') + ' ' + item.name : item.checkbox === true ? (item.checked ? '☑' : '☐') + ' ' + item.name : item.name;
+					return str;
+				}
+				function getElementFromEvent(event) {
+					if (!event) event = window.event;
+					return event.target || event.srcElement;
+				}
 				var name;
 				if (typeof itemItem === 'string') name = itemItem;else {
 					name = itemItem.name;
-					if (itemItem.onclick) elName.onclick = function (event) {
-						itemItem.onclick(event);
+					elName.onclick = function (event) {
+						if (itemItem.radio === true) {
+							menuItem.items.forEach(function (item) {
+								if (item.radio === true) {
+									if (getElementFromEvent(event) === item.elName) {
+										item.checked = true;
+										item.elName.classList.add(classChecked);
+									} else {
+										item.checked = false;
+										item.elName.classList.remove(classChecked);
+									}
+									item.elName.innerHTML = getItemName(item);
+								}
+							});
+						} else if (itemItem.checkbox === true) {
+							if (itemItem.checked === true) {
+								itemItem.elName.classList.add(classChecked);
+							} else {
+								itemItem.elName.classList.remove(classChecked);
+							}
+							itemItem.checked = !itemItem.checked;
+							itemItem.elName.innerHTML = getItemName(itemItem);
+						}
+						if (itemItem.onclick) itemItem.onclick(event);
 					};
 				}
-				elName.innerHTML = name;
+				if (itemItem.radio === true) elName.classList.add('radio');
+				if (itemItem.checkbox === true) elName.classList.add('checkbox');
+				elName.innerHTML = getItemName(itemItem);
+				if (itemItem.checked === true) elName.classList.add(classChecked);
 				elDropdownChild.appendChild(elName);
+				if (typeof itemItem !== "string") itemItem.elName = elName;
 			});
 			if (typeof menuItem.drop === 'object') {
 				moveUpLeft(menuItem.drop);
@@ -3117,16 +3179,20 @@ function create$2(elContainer, elCanvas, options) {
 		drop: 'up',
 		items: [{
 			name: 'Mono',
+			radio: true,
+			checked: true,
 			onclick: function onclick(event) {
 				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono);else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono;
 			}
 		}, {
 			name: 'Side by side',
+			radio: true,
 			onclick: function onclick(event) {
 				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS);else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS;
 			}
 		}, {
 			name: 'Top and bottom',
+			radio: true,
 			onclick: function onclick(event) {
 				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB);else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB;
 			}
@@ -3170,23 +3236,29 @@ function create$2(elContainer, elCanvas, options) {
 			setFullScreenButton();
 		}
 	});
+	var group = playController.getGroup();
 	menu.push({
-		name: '<input type="range" min="1" max="100" value="50" class="slider" id="myRange">',
+		name: '<input type="range" min="0" max="' + (group.children.length - 1) + '" value="0" class="slider" id="sliderPosition">',
 		style: 'float: right;',
-		title: 'current position of the playing'
+		title: sliderTitle + 0
 	});
 	elMenu = create$1(menu, {
 		elParent: typeof elContainer === "string" ? document.getElementById(elContainer) : elContainer,
 		canvas: typeof elCanvas === "string" ? document.getElementById(elCanvas) : elCanvas,
 		decorations: 'Transparent'
 	});
+	var elSlider = elMenu.querySelector('#sliderPosition');
+	elSlider.onchange = function (event) {
+		playController.selectObject3D(elSlider.value);
+	};
 	setFullScreenButton();
 }
 var elMenu;
+var elSlider;
+var sliderTitle = 'current position of the playing is ';
 function setSize(width, height) {
 	if (elMenu === undefined) return;
-	var itemWidth = 0,
-	    elSlider;
+	var itemWidth = 0;
 	for (var i = 0; i < elMenu.childNodes.length; i++) {
 		var menuItem = elMenu.childNodes[i];
 		var computedStyle = window.getComputedStyle(menuItem),
@@ -3202,6 +3274,10 @@ function setSize(width, height) {
 		elSlider.parentElement.style.width = sliderWidth + 'px';
 	}
 }
+function setIndex(index) {
+	elSlider.value = index;
+	elSlider.title = sliderTitle + index;
+}
 
-export { create$2 as create, setSize };
+export { create$2 as create, setSize, setIndex };
 //# sourceMappingURL=menuPlay.module.js.map
