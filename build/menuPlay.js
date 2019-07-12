@@ -2901,7 +2901,7 @@ function sync(url, options) {
 		request.ProcessReqChange(function (myRequest) {
 			if (myRequest.processStatus200Error()) return;
 			response = myRequest.req.responseText;
-			options.onload(response);
+			options.onload(response, url);
 			return;
 		});
 	}, false
@@ -2923,6 +2923,9 @@ function sync$1(src, options) {
 		    optionsItem = {
 			appendTo: options.appendTo,
 			tag: options.tag,
+			onload: function (response, url) {
+				console.log('loadScript.onload: ' + url);
+			},
 			onerror: function (str) {
 				options.onerror(str);
 				error = str;
@@ -3039,6 +3042,7 @@ function create$1(arrayMenu, options) {
 	options.elParent = options.elParent || document.querySelector('body');
 	var elMenu = document.createElement('menu');
 	if (options.elParent.classList.contains("container")) elMenu.className = 'controls';
+	var timeoutControls;
 	function displayControls() {
 		elMenu.style.opacity = 1;
 		clearTimeout(timeoutControls);
@@ -3175,8 +3179,11 @@ function create$1(arrayMenu, options) {
 	return elMenu;
 }
 
-function create$2(elContainer, elCanvas, options) {
+function create$2(elContainer, options) {
+	var elCanvas = elContainer.querySelector('canvas');
 	options = options || {};
+	var playController = options.playController,
+	    stereoEffect = options.stereoEffect;
 	var menu = [];
 	if (options.stereoEffect) menu.push({
 		name: '⚭',
@@ -3242,12 +3249,14 @@ function create$2(elContainer, elCanvas, options) {
 			setFullScreenButton();
 		}
 	});
-	var group = playController.getGroup();
-	menu.push({
-		name: '<input type="range" min="0" max="' + (group.children.length - 1) + '" value="0" class="slider" id="sliderPosition">',
-		style: 'float: right;',
-		title: sliderTitle + 0
-	});
+	if (options.playController !== undefined) {
+		var group = options.playController.getGroup();
+		menu.push({
+			name: '<input type="range" min="0" max="' + (group.children.length - 1) + '" value="0" class="slider" id="sliderPosition">',
+			style: 'float: right;',
+			title: sliderTitle + 0
+		});
+	}
 	elMenu = create$1(menu, {
 		elParent: typeof elContainer === "string" ? document.getElementById(elContainer) : elContainer,
 		canvas: typeof elCanvas === "string" ? document.getElementById(elCanvas) : elCanvas,
@@ -3257,6 +3266,18 @@ function create$2(elContainer, elCanvas, options) {
 	elSlider.onchange = function (event) {
 		playController.selectObject3D(elSlider.value);
 	};
+	function setFullScreenButton(fullScreen) {
+		var elMenuButtonFullScreen = document.getElementById('menuButtonFullScreen');
+		if (elMenuButtonFullScreen === null) return;
+		if (fullScreen === undefined) fullScreen = !(options.stereoEffect === undefined || !options.stereoEffect.isFullScreen());
+		if (fullScreen) {
+			elMenuButtonFullScreen.innerHTML = '⤦';
+			elMenuButtonFullScreen.title = 'Non Full Screen';
+		} else {
+			elMenuButtonFullScreen.innerHTML = '⤢';
+			elMenuButtonFullScreen.title = 'Full Screen';
+		}
+	}
 	setFullScreenButton();
 }
 var elMenu;

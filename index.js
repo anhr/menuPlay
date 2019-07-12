@@ -21,13 +21,17 @@ import { create as dropdownMenuCreate } from '../DropdownMenu/index.js';
 /**
  * dropdown menu for canvas for playing of 3D obects
  * @param {HTMLElement|String} elContainer if the HTMLElement is a container element for canvas. If the String is id of a container element for canvas.
- * @param {HTMLElement|String} elCanvas if the HTMLElement is canvas element. If the String is id of a canvas element.
  * @param {Object} [options] optional options.
  * @param {Object} [options.stereoEffect] new THREE.StereoEffect(...) https://github.com/anhr/three.js/blob/dev/examples/js/effects/StereoEffect.js
+ * @param {Object} [options.playController] playController https://github.com/anhr/controllerPlay - my custom controller in my version of dat.gui(https://github.com/anhr/dat.gui) for playing of 3D obects in my projects.
  */
-export function create( elContainer, elCanvas, options ) {
+export function create( elContainer, options ) {
+
+	var elCanvas = elContainer.querySelector( 'canvas' );
 
 	options = options || {};
+	var playController = options.playController,
+		stereoEffect = options.stereoEffect;
 
 	var menu = [];
 	if ( options.stereoEffect )
@@ -136,14 +140,20 @@ export function create( elContainer, elCanvas, options ) {
 		}
 
 	} );
-	var group = playController.getGroup();
-	menu.push( {
 
-		name: '<input type="range" min="0" max="' + ( group.children.length - 1 ) + '" value="0" class="slider" id="sliderPosition">',
-		style: 'float: right;',
-		title: sliderTitle + 0,
+	if ( options.playController !== undefined ) {
 
-	} );
+		var group = options.playController.getGroup();
+		menu.push( {
+
+			name: '<input type="range" min="0" max="' + ( group.children.length - 1 ) + '" value="0" class="slider" id="sliderPosition">',
+			style: 'float: right;',
+			title: sliderTitle + 0,
+
+		} );
+
+	}
+
 	elMenu = dropdownMenuCreate( menu, {
 
 		elParent: typeof elContainer === "string" ? document.getElementById( elContainer) : elContainer,
@@ -159,6 +169,27 @@ export function create( elContainer, elCanvas, options ) {
 
 	};
 
+	function setFullScreenButton( fullScreen ) {
+
+		var elMenuButtonFullScreen = document.getElementById( 'menuButtonFullScreen' );
+		if ( elMenuButtonFullScreen === null )
+			return;
+
+		if ( fullScreen === undefined )
+			fullScreen = !( ( options.stereoEffect === undefined ) || ! options.stereoEffect.isFullScreen() );
+		if ( fullScreen ) {
+
+			elMenuButtonFullScreen.innerHTML = '⤦';
+			elMenuButtonFullScreen.title = 'Non Full Screen';
+
+		} else {
+
+			elMenuButtonFullScreen.innerHTML = '⤢';
+			elMenuButtonFullScreen.title = 'Full Screen';
+
+		}
+
+	}
 	setFullScreenButton();
 
 }
