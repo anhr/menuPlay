@@ -2917,10 +2917,10 @@ function sync$1(src, options) {
 		    optionsItem = {
 			appendTo: options.appendTo,
 			tag: options.tag,
-			onload: function (response, url) {
+			onload: function onload(response, url) {
 				console.log('loadScript.onload: ' + url);
 			},
-			onerror: function (str) {
+			onerror: function onerror(str) {
 				options.onerror(str);
 				error = str;
 			}
@@ -3261,7 +3261,7 @@ function create$2(elContainer, options) {
 		playController.selectObject3D(elSlider.value);
 	};
 	function setFullScreenButton(fullScreen) {
-		var elMenuButtonFullScreen = document.getElementById('menuButtonFullScreen');
+		var elMenuButtonFullScreen = elContainer.querySelector('#menuButtonFullScreen');
 		if (elMenuButtonFullScreen === null) return;
 		if (fullScreen === undefined) fullScreen = !(options.stereoEffect === undefined || !options.stereoEffect.isFullScreen());
 		if (fullScreen) {
@@ -3271,34 +3271,35 @@ function create$2(elContainer, options) {
 			elMenuButtonFullScreen.innerHTML = '⤢';
 			elMenuButtonFullScreen.title = 'Full Screen';
 		}
+		if (options.onFullScreen) options.onFullScreen(fullScreen, elContainer);
 	}
 	setFullScreenButton();
-}
-var elMenu;
-var elSlider;
-var sliderTitle = 'current position of the playing is ';
-function setSize(width, height) {
-	if (elMenu === undefined) return;
-	var itemWidth = 0;
-	for (var i = 0; i < elMenu.childNodes.length; i++) {
-		var menuItem = elMenu.childNodes[i];
-		var computedStyle = window.getComputedStyle(menuItem),
-		    styleWidth = parseInt(computedStyle["margin-left"]) + parseInt(computedStyle["margin-right"]) + parseInt(computedStyle["padding-left"]) + parseInt(computedStyle["padding-right"]);
-		var elSliderCur = menuItem.querySelector('.slider');
-		if (elSliderCur === null) itemWidth += menuItem.offsetWidth + styleWidth;else {
-			elSlider = elSliderCur;
-			itemWidth += styleWidth;
+	this.setSize = function (width, height) {
+		if (elMenu === undefined) return;
+		var itemWidth = 0;
+		for (var i = 0; i < elMenu.childNodes.length; i++) {
+			var menuItem = elMenu.childNodes[i];
+			var computedStyle = window.getComputedStyle(menuItem),
+			    styleWidth = parseInt(computedStyle["margin-left"]) + parseInt(computedStyle["margin-right"]) + parseInt(computedStyle["padding-left"]) + parseInt(computedStyle["padding-right"]);
+			var elSliderCur = menuItem.querySelector('.slider');
+			if (elSliderCur === null) itemWidth += menuItem.offsetWidth + styleWidth;else {
+				elSlider = elSliderCur;
+				itemWidth += styleWidth;
+			}
 		}
-	}
-	var sliderWidth = width - itemWidth;
-	if (sliderWidth > 0) {
-		elSlider.parentElement.style.width = sliderWidth + 'px';
-	}
-}
-function setIndex(index) {
-	elSlider.value = index;
-	elSlider.title = sliderTitle + index;
+		var sliderWidth = width - itemWidth;
+		if (sliderWidth > 0) {
+			elSlider.parentElement.style.width = sliderWidth + 'px';
+		}
+	};
+	this.setIndex = function (index) {
+		elSlider.value = index;
+		elSlider.title = sliderTitle + index;
+	};
+	var elMenu,
+	    elSlider,
+	    sliderTitle = 'current position of the playing is ';
 }
 
-export { create$2 as create, setSize, setIndex };
+export { create$2 as create };
 //# sourceMappingURL=menuPlay.module.js.map
