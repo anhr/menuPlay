@@ -2924,7 +2924,7 @@ function sync$1(src, options) {
 			appendTo: options.appendTo,
 			tag: options.tag,
 			onload: function onload(response, url) {
-				console.log('loadScript.onload: ' + url);
+				console.log('loadScript.sync.onload: ' + url);
 			},
 			onerror: function onerror(str) {
 				options.onerror(str);
@@ -2955,6 +2955,7 @@ function async(src, options) {
 		loadScriptBase(function (script) {
 			script.setAttribute("id", srcAsync);
 			function _onload() {
+				console.log('loadScript.async.onload() ' + srcAsync);
 				if (options.onload !== undefined) {
 					if (src instanceof Array && isrc < src.length - 1) {
 						isrc++;
@@ -3196,57 +3197,65 @@ function create$2(elContainer, options) {
 			checked: true,
 			onclick: function onclick(event) {
 				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono);else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono;
+				if (options.onFullScreen) options.onFullScreen(false);
 			}
 		}, {
 			name: 'Side by side',
 			radio: true,
 			onclick: function onclick(event) {
 				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS);else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS;
+				if (options.onFullScreen) options.onFullScreen(true);
 			}
 		}, {
 			name: 'Top and bottom',
 			radio: true,
 			onclick: function onclick(event) {
 				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB);else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB;
+				if (options.onFullScreen) options.onFullScreen(true);
 			}
 		}]
 	});
-	menu.push({
-		name: lang.prevSymbol,
-		title: lang.prevSymbolTitle,
-		onclick: function onclick(event) {
-			playController.prev();
-		}
-	});
-	menu.push({
-		name: lang.playSymbol,
-		title: lang.playTitle,
-		id: "menuButtonPlay",
-		onclick: function onclick(event) {
-			playController.play();
-		}
-	});
-	menu.push({
-		name: lang.repeat,
-		title: lang.repeatOn,
-		id: "menuButtonRepeat",
-		onclick: function onclick(event) {
-			playController.repeat();
-		}
-	});
-	menu.push({
-		name: lang.nextSymbol,
-		title: lang.nextSymbolTitle,
-		onclick: function onclick(event) {
-			playController.next();
-		}
-	});
+	if (options.playController !== undefined) {
+		menu.push({
+			name: lang.prevSymbol,
+			title: lang.prevSymbolTitle,
+			onclick: function onclick(event) {
+				playController.prev();
+			}
+		});
+		menu.push({
+			name: lang.playSymbol,
+			title: lang.playTitle,
+			id: "menuButtonPlay",
+			onclick: function onclick(event) {
+				playController.play();
+			}
+		});
+		menu.push({
+			name: lang.repeat,
+			title: lang.repeatOn,
+			id: "menuButtonRepeat",
+			onclick: function onclick(event) {
+				playController.repeat();
+			}
+		});
+		menu.push({
+			name: lang.nextSymbol,
+			title: lang.nextSymbolTitle,
+			onclick: function onclick(event) {
+				playController.next();
+			}
+		});
+	}
 	menu.push({
 		style: 'float: right;',
 		id: "menuButtonFullScreen",
 		onclick: function onclick(event) {
-			if (stereoEffect !== undefined) stereoEffect.setFullScreen();
-			setFullScreenButton();
+			if (options.stereoEffect !== undefined && parseInt(options.stereoEffect.options.spatialMultiplex) !== THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono) {
+				alert('You can not change the fullscreen mode of the canvas if stereo effect mode is stereo.');
+				return false;
+			}
+			options.onFullScreenToggle();
 		}
 	});
 	if (options.playController !== undefined) {
@@ -3263,13 +3272,12 @@ function create$2(elContainer, options) {
 		decorations: 'Transparent'
 	});
 	var elSlider = elMenu.querySelector('#sliderPosition');
-	elSlider.onchange = function (event) {
+	if (elSlider !== null) elSlider.onchange = function (event) {
 		playController.selectObject3D(elSlider.value);
 	};
-	function setFullScreenButton(fullScreen) {
+	this.setFullScreenButton = function (fullScreen) {
 		var elMenuButtonFullScreen = elContainer.querySelector('#menuButtonFullScreen');
-		if (elMenuButtonFullScreen === null) return;
-		if (fullScreen === undefined) fullScreen = !(options.stereoEffect === undefined || !options.stereoEffect.isFullScreen());
+		if (elMenuButtonFullScreen === null) return true;
 		if (fullScreen) {
 			elMenuButtonFullScreen.innerHTML = '⤦';
 			elMenuButtonFullScreen.title = 'Non Full Screen';
@@ -3277,9 +3285,9 @@ function create$2(elContainer, options) {
 			elMenuButtonFullScreen.innerHTML = '⤢';
 			elMenuButtonFullScreen.title = 'Full Screen';
 		}
-		if (options.onFullScreen) options.onFullScreen(fullScreen, elContainer);
-	}
-	setFullScreenButton();
+		return true;
+	};
+	this.setFullScreenButton();
 	this.setSize = function (width, height) {
 		if (elMenu === undefined) return;
 		var itemWidth = 0;
@@ -3293,6 +3301,7 @@ function create$2(elContainer, options) {
 				itemWidth += styleWidth;
 			}
 		}
+		if (elSlider === null) return;
 		var sliderWidth = width - itemWidth;
 		if (sliderWidth > 0) {
 			elSlider.parentElement.style.width = sliderWidth + 'px';

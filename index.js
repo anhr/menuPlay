@@ -61,6 +61,9 @@ export function create( elContainer, options ) {
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
 							stereoEffect.setSpatialMultiplex( THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono );
 						else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono;
+//						setFullScreenButton( false );
+						if ( options.onFullScreen )
+							options.onFullScreen( false );
 
 					}
 				},
@@ -72,6 +75,9 @@ export function create( elContainer, options ) {
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
 							stereoEffect.setSpatialMultiplex( THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS );
 						else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS;
+//						setFullScreenButton( true );
+						if ( options.onFullScreen )
+							options.onFullScreen( true );
 
 					}
 				},
@@ -83,6 +89,9 @@ export function create( elContainer, options ) {
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
 							stereoEffect.setSpatialMultiplex( THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB );
 						else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB;
+//						setFullScreenButton( true );
+						if ( options.onFullScreen )
+							options.onFullScreen( true );
 
 					}
 				},
@@ -91,56 +100,60 @@ export function create( elContainer, options ) {
 
 		} );
 
-	//Previous button
-	menu.push( {
+	if ( options.playController !== undefined ) {
 
-		name: lang.prevSymbol,
-		title: lang.prevSymbolTitle,
-		onclick: function ( event ) {
+		//Previous button
+		menu.push( {
 
-			playController.prev();
+			name: lang.prevSymbol,
+			title: lang.prevSymbolTitle,
+			onclick: function ( event ) {
 
-		}
+				playController.prev();
 
-	} );
-	//Play button
-	menu.push( {
+			}
 
-		name: lang.playSymbol,
-		title: lang.playTitle,
-		id: "menuButtonPlay",
-		onclick: function ( event ) {
+		} );
+		//Play button
+		menu.push( {
 
-			playController.play();
+			name: lang.playSymbol,
+			title: lang.playTitle,
+			id: "menuButtonPlay",
+			onclick: function ( event ) {
 
-		}
+				playController.play();
 
-	} );
-	//Repeat button
-	menu.push( {
+			}
 
-		name: lang.repeat,
-		title: lang.repeatOn,
-		id: "menuButtonRepeat",
-		onclick: function ( event ) {
+		} );
+		//Repeat button
+		menu.push( {
 
-			playController.repeat();
+			name: lang.repeat,
+			title: lang.repeatOn,
+			id: "menuButtonRepeat",
+			onclick: function ( event ) {
 
-		}
+				playController.repeat();
 
-	} );
-	//Next button
-	menu.push( {
+			}
 
-		name: lang.nextSymbol,
-		title: lang.nextSymbolTitle,
-		onclick: function ( event ) {
+		} );
+		//Next button
+		menu.push( {
 
-			playController.next();
+			name: lang.nextSymbol,
+			title: lang.nextSymbolTitle,
+			onclick: function ( event ) {
 
-		}
+				playController.next();
 
-	} );
+			}
+
+		} );
+
+	}
 	//Full Screen button
 	menu.push( {
 
@@ -148,9 +161,17 @@ export function create( elContainer, options ) {
 		id: "menuButtonFullScreen",
 		onclick: function ( event ) {
 
-			if ( stereoEffect !== undefined )
-				stereoEffect.setFullScreen();
-			setFullScreenButton();
+			if (
+				( options.stereoEffect !== undefined )
+				&& ( parseInt( options.stereoEffect.options.spatialMultiplex ) !== THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono )
+			) {
+
+				alert( 'You can not change the fullscreen mode of the canvas if stereo effect mode is stereo.' );
+				return false;//do not change the fullscreen mode of the canvas if stereo effect is stereo
+
+			}
+			options.onFullScreenToggle();
+//			setFullScreenButton( options.onFullScreenToggle() );
 
 		}
 
@@ -178,21 +199,19 @@ export function create( elContainer, options ) {
 
 	} );
 	var elSlider = elMenu.querySelector( '#sliderPosition' );
-	elSlider.onchange = function ( event ) {
+	if ( elSlider !== null )
+		elSlider.onchange = function ( event ) {
 
-		//console.log( 'position: ' + elSlider.value );
-		playController.selectObject3D( elSlider.value );
+			//console.log( 'position: ' + elSlider.value );
+			playController.selectObject3D( elSlider.value );
 
-	};
+		};
 
-	function setFullScreenButton( fullScreen ) {
+	this.setFullScreenButton = function( fullScreen ) {
 
 		var elMenuButtonFullScreen = elContainer.querySelector( '#menuButtonFullScreen' );//document.getElementById( 'menuButtonFullScreen' );
 		if ( elMenuButtonFullScreen === null )
-			return;
-
-		if ( fullScreen === undefined )
-			fullScreen = !( ( options.stereoEffect === undefined ) || ! options.stereoEffect.isFullScreen() );
+			return true;
 		if ( fullScreen ) {
 
 			elMenuButtonFullScreen.innerHTML = '⤦';
@@ -204,12 +223,17 @@ export function create( elContainer, options ) {
 			elMenuButtonFullScreen.title = 'Full Screen';
 
 		}
-		if ( options.onFullScreen )
-			options.onFullScreen( fullScreen, elContainer )
+		return true;
 
 	}
-	setFullScreenButton();
+//	this.setFullScreenButton = setFullScreenButton;
+	this.setFullScreenButton();
 
+	/**
+	 * sets size of the slider element of the menu
+	 * @param {Number} width width of the canvas
+	 * @param {Number} height height of the canvas
+	 */
 	this.setSize = function ( width, height ) {
 		if ( elMenu === undefined )
 			return;
@@ -236,14 +260,13 @@ export function create( elContainer, options ) {
 			}
 
 		}
+
+		if ( elSlider === null )
+			return;//no controllerPlay
 		var sliderWidth = width - itemWidth;
 		if ( sliderWidth > 0 ) {
 
 			elSlider.parentElement.style.width = sliderWidth + 'px';
-			/*
-					elSlider.parentElement.style.height = '10px';
-					elSlider.style.height = '10px';
-			*/
 
 		}
 
@@ -257,52 +280,3 @@ export function create( elContainer, options ) {
 	var elMenu, elSlider, sliderTitle = 'current position of the playing is ';
 
 }
-/**
- * sets size of the slider element of the menu
- * @param {Number} width width of the canvas
- * @param {Number} height height of the canvas
- */
-/*
-export function setSize( width, height ) {
-
-	if ( elMenu === undefined )
-		return;
-	var itemWidth = 0;
-	//elMenu.childNodes.forEach( function ( menuItem )not compatible with IE 11
-	for ( var i = 0; i < elMenu.childNodes.length; i++ ){
-
-		var menuItem = elMenu.childNodes[ i ];
-		var computedStyle = window.getComputedStyle( menuItem ),
-			styleWidth =
-				parseInt( computedStyle["margin-left"] ) +
-				parseInt( computedStyle["margin-right"] ) +
-				parseInt( computedStyle["padding-left"] ) +
-				parseInt( computedStyle["padding-right"] )
-			;
-		var elSliderCur = menuItem.querySelector( '.slider' );
-		if ( elSliderCur === null )
-			itemWidth += menuItem.offsetWidth + styleWidth;
-		else {
-
-			elSlider = elSliderCur;//menuItem;
-			itemWidth += styleWidth;
-
-		}
-
-	}
-	var sliderWidth = width - itemWidth;
-	if ( sliderWidth > 0 ) {
-
-		elSlider.parentElement.style.width = sliderWidth + 'px';
-
-	}
-}
-*/
-/*
-export function setIndex( index ) {
-
-	elSlider.value = index;
-	elSlider.title = sliderTitle + index;
-
-}
-*/
