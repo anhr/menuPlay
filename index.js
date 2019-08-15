@@ -18,6 +18,12 @@ import { lang } from '../controllerPlay/index.js';
 //Please download https://github.com/anhr/https://github.com/anhr/DropdownMenu to '../DropdownMenu/' folder
 import { create as dropdownMenuCreate } from '../DropdownMenu/index.js';
 
+//import { spatialMultiplexsIndexs } from 'http://localhost/threejs/three.js/examples/jsm/effects/StereoEffect';
+//import { spatialMultiplexsIndexs } from 'http://localhost/threejs/three.js/examples/jsm/effects/spatialMultiplexsIndexs.js';
+//import { spatialMultiplexsIndexs } from 'D:\My documents\MyProjects\webgl\three.js\GitHub\three.js\examples\jsm\effects\StereoEffect.js';
+//import { spatialMultiplexsIndexs } from './spatialMultiplexsIndexs.js';
+//import { spatialMultiplexsIndexs } from '../../../../My%20documents/MyProjects/webgl/three.js/GitHub/three.js/examples/jsm/effects/StereoEffect.js';
+
 /**
  * @callback onFullScreen
  * @param {boolean} fullScreen true - full screen mode of the canvas.
@@ -38,7 +44,8 @@ export function create( elContainer, options ) {
 
 	options = options || {};
 	var playController = options.playController,
-		stereoEffect = options.stereoEffect;
+		stereoEffect = options.stereoEffect.stereoEffect,
+		spatialMultiplexsIndexs = options.stereoEffect.spatialMultiplexsIndexs;
 
 	var menu = [];
 
@@ -59,8 +66,8 @@ export function create( elContainer, options ) {
 					onclick: function ( event ) {
 
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
-							stereoEffect.setSpatialMultiplex( THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono );
-						else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono;
+							stereoEffect.setSpatialMultiplex( spatialMultiplexsIndexs.Mono );
+						else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.Mono;
 //						setFullScreenButton( false );
 						if ( options.onFullScreen )
 							options.onFullScreen( false );
@@ -73,8 +80,8 @@ export function create( elContainer, options ) {
 					onclick: function ( event ) {
 
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
-							stereoEffect.setSpatialMultiplex( THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS );
-						else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS;
+							stereoEffect.setSpatialMultiplex( spatialMultiplexsIndexs.SbS );
+						else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.SbS;
 //						setFullScreenButton( true );
 						if ( options.onFullScreen )
 							options.onFullScreen( true );
@@ -87,8 +94,8 @@ export function create( elContainer, options ) {
 					onclick: function ( event ) {
 
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
-							stereoEffect.setSpatialMultiplex( THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB );
-						else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB;
+							stereoEffect.setSpatialMultiplex( spatialMultiplexsIndexs.TaB );
+						else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.TaB;
 //						setFullScreenButton( true );
 						if ( options.onFullScreen )
 							options.onFullScreen( true );
@@ -163,7 +170,7 @@ export function create( elContainer, options ) {
 
 			if (
 				( options.stereoEffect !== undefined )
-				&& ( parseInt( options.stereoEffect.options.spatialMultiplex ) !== THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono )
+				&& ( parseInt( stereoEffect.options.spatialMultiplex ) !== spatialMultiplexsIndexs.Mono )
 			) {
 
 				alert( 'You can not change the fullscreen mode of the canvas if stereo effect mode is stereo.' );

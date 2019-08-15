@@ -2648,7 +2648,7 @@ var PlayController = function (_controllers$CustomCo) {
 						group.userData.timerId = -1;
 						play(group, events);
 						RenamePlayButtons(lang.pause, lang.pauseTitle, true);
-						group.userData.timerId = setInterval(playNext, 1000 / customController.controller.getValue());
+						group.userData.timerId = setInterval(playNext, 1000 / (typeof customController.controller === 'undefined' ? 1 : customController.controller.getValue()));
 					} else pause();
 				}
 				_play = play3DObject;
@@ -2901,6 +2901,7 @@ function sync(url, options) {
 		request.ProcessReqChange(function (myRequest) {
 			if (myRequest.processStatus200Error()) return;
 			response = myRequest.req.responseText;
+			console.log('loadFile.sync.onload() ' + url);
 			options.onload(response, url);
 			return;
 		});
@@ -2915,7 +2916,7 @@ function sync$1(src, options) {
 	options.onerror = options.onerror || function () {};
 	options.appendTo = options.appendTo || document.getElementsByTagName('head')[0];
 	if (isScriptExists(options.appendTo, src)) {
-		options.onerror('duplicate downloading of the ' + src + ' file');
+		options.onload();
 		return;
 	}
 	if (src instanceof Array) {
@@ -2951,16 +2952,22 @@ function async(src, options) {
 	options.onload = options.onload || function () {};
 	var isrc;
 	function async(srcAsync) {
-		if (isScriptExists(options.appendTo, srcAsync, options.onload)) return;
+		function next() {
+			if (src instanceof Array && isrc < src.length - 1) {
+				isrc++;
+				async(src[isrc]);
+			} else options.onload();
+		}
+		if (isScriptExists(options.appendTo, srcAsync, options.onload)) {
+			next();
+			return;
+		}
 		loadScriptBase(function (script) {
 			script.setAttribute("id", srcAsync);
 			function _onload() {
 				console.log('loadScript.async.onload() ' + srcAsync);
 				if (options.onload !== undefined) {
-					if (src instanceof Array && isrc < src.length - 1) {
-						isrc++;
-						async(src[isrc]);
-					} else options.onload();
+					next();
 				}
 			}
 			if (script.readyState && !script.onload) {
@@ -3020,8 +3027,7 @@ function isScriptExists(elParent, srcAsync, onload) {
 	var scripts = elParent.querySelectorAll('script');
 	for (var i = 0; i < scripts.length; i++) {
 		var child = scripts[i];
-		if (child.id == srcAsync) {
-			if (onload !== undefined) onload();
+		if (child.id === srcAsync) {
 			return true;
 		}
 	}
@@ -3184,7 +3190,8 @@ function create$2(elContainer, options) {
 	var elCanvas = elContainer.querySelector('canvas');
 	options = options || {};
 	var playController = options.playController,
-	    stereoEffect = options.stereoEffect;
+	    stereoEffect = options.stereoEffect.stereoEffect,
+	    spatialMultiplexsIndexs = options.stereoEffect.spatialMultiplexsIndexs;
 	var menu = [];
 	if (options.stereoEffect) menu.push({
 		name: '⚭',
@@ -3196,21 +3203,21 @@ function create$2(elContainer, options) {
 			radio: true,
 			checked: true,
 			onclick: function onclick(event) {
-				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono);else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono;
+				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(spatialMultiplexsIndexs.Mono);else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.Mono;
 				if (options.onFullScreen) options.onFullScreen(false);
 			}
 		}, {
 			name: 'Side by side',
 			radio: true,
 			onclick: function onclick(event) {
-				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS);else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.SbS;
+				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(spatialMultiplexsIndexs.SbS);else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.SbS;
 				if (options.onFullScreen) options.onFullScreen(true);
 			}
 		}, {
 			name: 'Top and bottom',
 			radio: true,
 			onclick: function onclick(event) {
-				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB);else stereoEffect.options.spatialMultiplex = THREE.StereoEffectParameters.spatialMultiplexsIndexs.TaB;
+				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(spatialMultiplexsIndexs.TaB);else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.TaB;
 				if (options.onFullScreen) options.onFullScreen(true);
 			}
 		}]
@@ -3251,7 +3258,7 @@ function create$2(elContainer, options) {
 		style: 'float: right;',
 		id: "menuButtonFullScreen",
 		onclick: function onclick(event) {
-			if (options.stereoEffect !== undefined && parseInt(options.stereoEffect.options.spatialMultiplex) !== THREE.StereoEffectParameters.spatialMultiplexsIndexs.Mono) {
+			if (options.stereoEffect !== undefined && parseInt(stereoEffect.options.spatialMultiplex) !== spatialMultiplexsIndexs.Mono) {
 				alert('You can not change the fullscreen mode of the canvas if stereo effect mode is stereo.');
 				return false;
 			}
