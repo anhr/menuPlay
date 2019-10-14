@@ -13,7 +13,7 @@
  */
 
 //Please download https://github.com/anhr/controllerPlay to '../controllerPlay/' folder
-import { lang } from '../controllerPlay/index.js';
+import { lang } from '../controllerPlay/master/index.js';
 
 //Please download https://github.com/anhr/https://github.com/anhr/DropdownMenu to '../DropdownMenu/' folder
 import { create as dropdownMenuCreate } from '../DropdownMenu/index.js';
