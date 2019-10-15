@@ -16,7 +16,7 @@
 import { lang } from '../../controllerPlay/master/index.js';
 
 //Please download https://github.com/anhr/https://github.com/anhr/DropdownMenu to '../DropdownMenu/' folder
-import { create as dropdownMenuCreate } from '../../DropdownMenu/index.js';
+import { create as dropdownMenuCreate } from '../../DropdownMenu/master/index.js';
 
 //import { spatialMultiplexsIndexs } from 'http://localhost/threejs/three.js/examples/jsm/effects/StereoEffect';
 //import { spatialMultiplexsIndexs } from 'http://localhost/threejs/three.js/examples/jsm/effects/spatialMultiplexsIndexs.js';
