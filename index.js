@@ -18,12 +18,6 @@ import { lang } from '../../controllerPlay/master/index.js';
 //Please download https://github.com/anhr/https://github.com/anhr/DropdownMenu to '../DropdownMenu/' folder
 import { create as dropdownMenuCreate } from '../../DropdownMenu/master/index.js';
 
-//import { spatialMultiplexsIndexs } from 'http://localhost/threejs/three.js/examples/jsm/effects/StereoEffect';
-//import { spatialMultiplexsIndexs } from 'http://localhost/threejs/three.js/examples/jsm/effects/spatialMultiplexsIndexs.js';
-//import { spatialMultiplexsIndexs } from 'D:\My documents\MyProjects\webgl\three.js\GitHub\three.js\examples\jsm\effects\StereoEffect.js';
-//import { spatialMultiplexsIndexs } from './spatialMultiplexsIndexs.js';
-//import { spatialMultiplexsIndexs } from '../../../../My%20documents/MyProjects/webgl/three.js/GitHub/three.js/examples/jsm/effects/StereoEffect.js';
-
 /**
  * @callback onFullScreen
  * @param {boolean} fullScreen true - full screen mode of the canvas.
@@ -234,12 +228,12 @@ export function create( elContainer, options ) {
 
 		elSlider.onchange = function ( event ) {
 
-			options.player.selectScene( elSlider.value );
+			options.player.selectScene( parseInt( elSlider.value ) );
 
 		};
 		elSlider.oninput = function ( event ) {
 
-			options.player.selectScene( elSlider.value );
+			options.player.selectScene( parseInt( elSlider.value ) );
 
 		};
 
