@@ -2560,25 +2560,26 @@ var controllers = {
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 function getLanguageCode() {
-  function _getLocale() {
-    if (!navigator) {
-      console.error("getLocale() failed! !navigator");
-      return "";
-    }
-    if (navigator.languages !== undefined && typeof navigator.languages !== 'unknown' && navigator.languages.length > 0) return navigator.languages[0];
-    if (navigator.language) {
-      return navigator.language;
-    } else if (navigator.browserLanguage) {
-      return navigator.browserLanguage;
-    } else if (navigator.systemLanguage) {
-      return navigator.systemLanguage;
-    } else if (navigator.userLanguage) {
-      return navigator.userLanguage;
-    }
-    console.error("getLocale() failed!");
-    return "";
-  }
-  return _getLocale().toLowerCase().match(/([a-z]+)(?:-([a-z]+))?/)[1];
+		function _getLocale() {
+				if (!navigator) {
+						console.error("getLocale() failed! !navigator");
+						return "";
+				}
+				if (navigator.languages !== undefined && typeof navigator.languages !== 'unknown'
+				&& navigator.languages.length > 0) return navigator.languages[0];
+				if (navigator.language) {
+						return navigator.language;
+				} else if (navigator.browserLanguage) {
+						return navigator.browserLanguage;
+				} else if (navigator.systemLanguage) {
+						return navigator.systemLanguage;
+				} else if (navigator.userLanguage) {
+						return navigator.userLanguage;
+				}
+				console.error("getLocale() failed!");
+				return "";
+		}
+		return _getLocale().toLowerCase().match(/([a-z]+)(?:-([a-z]+))?/)[1];
 }
 
 /**
