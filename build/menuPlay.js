@@ -1,7 +1,7 @@
 /**
  * node.js version of the menuPlay
  *
- * My dropdown menu for canvas in my version of [dat.gui](https://github.com/anhr/dat.gui) for playing of 3D obects in my projects.
+ * My dropdown menu for canvas in my version of [dat.gui](https://github.com/anhr/dat.gui) for playing of 3D objects in my projects.
  *
  * @author Andrej Hristoliubov https://anhr.github.io/AboutMe/
  * Thanks to https://stackoverflow.com/a/4797877/5175935
@@ -2552,189 +2552,209 @@ var controllers = {
   CustomController: CustomController
 };
 
+/**
+ * Localization.
+ *
+ * @author Andrej Hristoliubov https://anhr.github.io/AboutMe/
+ *
+ * @copyright 2011 Data Arts Team, Google Creative Lab
+ *
+ * @license under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
+function getLanguageCode() {
+  function _getLocale() {
+    if (!navigator) {
+      console.error("getLocale() failed! !navigator");
+      return "";
+    }
+    if (navigator.languages !== undefined && typeof navigator.languages !== 'unknown' && navigator.languages.length > 0) return navigator.languages[0];
+    if (navigator.language) {
+      return navigator.language;
+    } else if (navigator.browserLanguage) {
+      return navigator.browserLanguage;
+    } else if (navigator.systemLanguage) {
+      return navigator.systemLanguage;
+    } else if (navigator.userLanguage) {
+      return navigator.userLanguage;
+    }
+    console.error("getLocale() failed!");
+    return "";
+  }
+  return _getLocale().toLowerCase().match(/([a-z]+)(?:-([a-z]+))?/)[1];
+}
+
+/**
+* PlayController class for using in my version of dat.gui(https://github.com/anhr/dat.gui) for playing of 3D objects in my projects.
+*
+* @author Andrej Hristoliubov https://anhr.github.io/AboutMe/
+*
+* @copyright 2011 Data Arts Team, Google Creative Lab
+*
+* @license under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*/
 var lang = {
-	prevSymbol: '←',
-	prevSymbolTitle: 'Go to previous object 3D',
-	nextSymbol: '→',
-	nextSymbolTitle: 'Go to next object 3D',
-	playSymbol: '►',
-	playTitle: 'Play',
-	pause: '❚❚',
-	pauseTitle: 'Pause',
-	repeat: '⥀',
-	repeatOn: 'Turn repeat on',
-	repeatOff: 'Turn repeat off',
-	controllerTitle: 'Rate of changing of selected of 3D objects per second.'
+				prevSymbol: '←',
+				prevSymbolTitle: 'Go to previous animation scene',
+				nextSymbol: '→',
+				nextSymbolTitle: 'Go to next animation scene',
+				playSymbol: '►',
+				playTitle: 'Play',
+				pause: '❚❚',
+				pauseTitle: 'Pause',
+				repeat: '⥀',
+				repeatOn: 'Turn repeat on',
+				repeatOff: 'Turn repeat off',
+				controllerTitle: 'Rate of changing of animation scenes per second.',
+				fullScreen: 'Full Screen',
+				nonFullScreen: 'Non Full Screen',
+				stereoEffects: 'Stereo effects',
+				mono: 'Mono',
+				sideBySide: 'Side by side',
+				topAndBottom: 'Top and bottom'
 };
-switch (typeof THREE === 'undefined' || typeof THREE.getLanguageCode === 'undefined' ? 'en' : THREE.getLanguageCode()) {
-	case 'ru':
-		lang.prevSymbolTitle = 'Выбрать предыдущий 3D объект';
-		lang.playTitle = 'Проиграть';
-		lang.nextSymbolTitle = 'Выбрать следующий 3D объект';
-		lang.pauseTitle = 'Пауза';
-		lang.repeatOn = 'Повторять проигрывание';
-		lang.repeatOff = 'Остановить повтор проигрывания';
-		lang.controllerTitle = 'Скорость выбора 3D объекта в секунду.';
-		break;
+switch (getLanguageCode()) {
+				case 'ru':
+								lang.prevSymbolTitle = 'Кадр назад';
+								lang.playTitle = 'Проиграть';
+								lang.nextSymbolTitle = 'Кадр вперед';
+								lang.pauseTitle = 'Пауза';
+								lang.repeatOn = 'Повторять проигрывание';
+								lang.repeatOff = 'Остановить повтор проигрывания';
+								lang.controllerTitle = 'Скорость смены кадров в секунду.';
+								lang.fullScreen = 'На весь экран';
+								lang.nonFullScreen = 'Восстановить размеры экрана';
+								lang.stereoEffects = 'Стерео эффекты';
+								lang.mono = 'Моно';
+								lang.sideBySide = 'Слева направо';
+								lang.topAndBottom = 'Сверху вниз';
+								break;
 }
 function addButton(innerHTML, title, onclick) {
-	var button = document.createElement('span');
-	button.innerHTML = innerHTML;
-	button.title = title;
-	button.style.cursor = 'pointer';
-	button.style.margin = '0px 2px';
-	button.onclick = onclick;
-	return button;
+				var button = document.createElement('span');
+				button.innerHTML = innerHTML;
+				button.title = title;
+				button.style.cursor = 'pointer';
+				button.style.margin = '0px 2px';
+				button.onclick = onclick;
+				return button;
 }
 var PlayController = function (_controllers$CustomCo) {
-	inherits(PlayController, _controllers$CustomCo);
-	function PlayController(group, events) {
-		classCallCheck(this, PlayController);
-		events = events || {};
-		var _playNext, _prev, _play, _repeat, _next, _getGroup, _selectObject3D;
-		var _this2 = possibleConstructorReturn(this, (PlayController.__proto__ || Object.getPrototypeOf(PlayController)).call(this, {
-			playRate: 1,
-			property: function property(customController) {
-				var buttons = {};
-				function RenamePlayButtons(innerHTML, title, play) {
-					buttons.buttonPlay.innerHTML = innerHTML;
-					buttons.buttonPlay.title = title;
-					if (events.onRenamePlayButton !== undefined) events.onRenamePlayButton(innerHTML, title, play);
+				inherits(PlayController, _controllers$CustomCo);
+				function PlayController(player) {
+								classCallCheck(this, PlayController);
+								var _getGroup, _selectScene, _renamePlayButtons, _renameRepeatButtons;
+								var colorOff = 'rgb(255,255,255)',
+								    colorOn = 'rgb(128,128,128)';
+								var _this2 = possibleConstructorReturn(this, (PlayController.__proto__ || Object.getPrototypeOf(PlayController)).call(this, {
+												playRate: 1,
+												property: function property(customController) {
+																var buttons = {};
+																function RenamePlayButtons(innerHTML, title) {
+																				buttons.buttonPlay.innerHTML = innerHTML;
+																				buttons.buttonPlay.title = title;
+																}
+																_renamePlayButtons = RenamePlayButtons;
+																buttons.buttonPrev = addButton(lang.prevSymbol, lang.prevSymbolTitle, player.prev);
+																buttons.buttonPlay = addButton(lang.playSymbol, lang.playTitle, player.play3DObject);
+																function RenameRepeatButtons(isRepeat) {
+																				var title, color$$1;
+																				if (isRepeat) {
+																								title = lang.repeatOff;
+																								color$$1 = colorOff;
+																				} else {
+																								title = lang.repeatOn;
+																								color$$1 = colorOn;
+																				}
+																				if (buttons.buttonRepeat.title === title) return;
+																				buttons.buttonRepeat.title = title;
+																				buttons.buttonRepeat.style.color = color$$1;
+																				player.onChangeRepeat(isRepeat);
+																}
+																_renameRepeatButtons = RenameRepeatButtons;
+																function repeat(value) {
+																				RenameRepeatButtons(buttons.buttonRepeat.title === lang.repeatOn);
+																}
+																var title, color$$1;
+																if (player.getOptions().repeat) {
+																				title = lang.repeatOff;
+																				color$$1 = colorOff;
+																} else {
+																				title = lang.repeatOn;
+																				color$$1 = colorOn;
+																}
+																buttons.buttonRepeat = addButton(lang.repeat, title, repeat);
+																buttons.buttonRepeat.style.color = color$$1;
+																buttons.buttonNext = addButton(lang.nextSymbol, lang.nextSymbolTitle, player.next);
+																function getGroup() {
+																				return group;
+																}
+																_getGroup = getGroup;
+																return buttons;
+												}
+								}, 'playRate', 1, 25, 1));
+								_this2.onRenamePlayButtons = function (playing) {
+												var name, title;
+												if (playing) {
+																name = lang.pause;
+																title = lang.pauseTitle;
+												} else {
+																name = lang.playSymbol;
+																title = lang.playTitle;
+												}
+												_renamePlayButtons(name, title, true);
+								};
+								_this2.onChangeRepeat = function () {
+												_renameRepeatButtons(player.getOptions().repeat);
+								};
+								player.pushController(_this2);
+								_this2.onChange = function (value) {
+												player.onChangeTimerId(value);
+								};
+								_this2.getGroup = function () {
+												return _getGroup();
+								};
+								_this2.selectScene = function (index) {
+												_selectScene(parseInt(index));
+								};
+								return _this2;
 				}
-				var selectObject3DIndex = -1;
-				function play() {
-					if (selectObject3DIndex === -1 || selectObject3DIndex === group.children.length) {
-						selectObject3DIndex = 0;
-					}
-					for (var i = 0; i < group.children.length; i++) {
-						var objects3DItem = group.children[i];
-						if (selectObject3DIndex === i) {
-							if (events.onShowObject3D !== undefined) events.onShowObject3D(objects3DItem, selectObject3DIndex);
-						} else {
-							if (events.onHideObject3D !== undefined) events.onHideObject3D(objects3DItem);
-						}
-					}
-				}
-				function pause() {
-					for (var i = 0; i < group.children.length; i++) {
-						var objects3DItem = group.children[i];
-						if (events.onRestoreObject3D !== undefined) events.onRestoreObject3D(objects3DItem);
-					}
-					RenamePlayButtons(lang.playSymbol, lang.playTitle);
-					clearInterval(group.userData.timerId);
-					group.userData.timerId = undefined;
-				}
-				function isRepeat() {
-					return buttons.buttonRepeat.title !== lang.repeatOn;
-				}
-				function playNext() {
-					selectObject3DIndex++;
-					if (selectObject3DIndex >= group.children.length) {
-						if (isRepeat()) selectObject3DIndex = 0;else {
-							pause();
-							return;
-						}
-					}
-					play();
-				}
-				_playNext = playNext;
-				function prev() {
-					selectObject3D(selectObject3DIndex - 1);
-				}
-				_prev = prev;
-				buttons.buttonPrev = addButton(lang.prevSymbol, lang.prevSymbolTitle, prev);
-				function play3DObject(value) {
-					if (buttons.buttonPlay.innerHTML === lang.playSymbol) {
-						group.userData.timerId = -1;
-						play(group, events);
-						RenamePlayButtons(lang.pause, lang.pauseTitle, true);
-						group.userData.timerId = setInterval(playNext, 1000 / (typeof customController.controller === 'undefined' ? 1 : customController.controller.getValue()));
-					} else pause();
-				}
-				_play = play3DObject;
-				buttons.buttonPlay = addButton(lang.playSymbol, lang.playTitle, play3DObject);
-				var colorGray = 'rgb(200,200,200)';
-				function repeat(value) {
-					function RenameRepeatButtons(title, color$$1) {
-						buttons.buttonRepeat.title = title;
-						buttons.buttonRepeat.style.color = color$$1;
-						if (events.onRenameRepeatButton !== undefined) events.onRenameRepeatButton(title, color$$1);
-					}
-					if (buttons.buttonRepeat.title === lang.repeatOn) {
-						RenameRepeatButtons(lang.repeatOff, 'rgb(255,255,255)');
-					} else {
-						RenameRepeatButtons(lang.repeatOn, colorGray);
-					}
-				}
-				_repeat = repeat;
-				buttons.buttonRepeat = addButton(lang.repeat, lang.repeatOn, repeat);
-				function next(value) {
-					selectObject3D(selectObject3DIndex + 1);
-				}
-				_next = next;
-				buttons.buttonNext = addButton(lang.nextSymbol, lang.nextSymbolTitle, next);
-				function selectObject3D(index) {
-					if (selectObject3DIndex === -1) selectObject3DIndex = group.children.length;
-					var objects3DItem = group.children[selectObject3DIndex];
-					if (objects3DItem !== undefined) {
-						if (events.onRestoreObject3D !== undefined) events.onRestoreObject3D(objects3DItem);
-					}
-					selectObject3DIndex = index;
-					if (selectObject3DIndex >= group.children.length) selectObject3DIndex = 0;
-					if (selectObject3DIndex < 0) selectObject3DIndex = group.children.length - 1;
-					objects3DItem = group.children[selectObject3DIndex];
-					if (events.onSelectedObject3D !== undefined) events.onSelectedObject3D(objects3DItem, selectObject3DIndex);
-				}
-				_selectObject3D = selectObject3D;
-				function getGroup() {
-					return group;
-				}
-				_getGroup = getGroup;
-				return buttons;
-			}
-		}, 'playRate', 1, 25, 1));
-		_this2.onChange = function (value) {
-			if (group.userData.timerId === undefined) return;
-			clearInterval(group.userData.timerId);
-			group.userData.timerId = setInterval(_playNext, 1000 / value);
-		};
-		_this2.prev = function () {
-			_prev();
-		};
-		_this2.play = function () {
-			_play();
-		};
-		_this2.repeat = function () {
-			_repeat();
-		};
-		_this2.next = function () {
-			_next();
-		};
-		_this2.getGroup = function () {
-			return _getGroup();
-		};
-		_this2.selectObject3D = function (index) {
-			_selectObject3D(parseInt(index));
-		};
-		return _this2;
-	}
-	createClass(PlayController, [{
-		key: 'controller',
-		set: function set$$1(newController) {
-			this._controller = newController;
-			var _this = this;
-			this._controller.onChange(function (value) {
-				_this.onChange(value);
-			});
-			this._controller.domElement.title = lang.controllerTitle;
-		},
-		get: function get$$1() {
-			return this._controller;
-		}
-	}]);
-	return PlayController;
+				createClass(PlayController, [{
+								key: 'controller',
+								set: function set$$1(newController) {
+												this._controller = newController;
+												var _this = this;
+												this._controller.onChange(function (value) {
+																_this.onChange(value);
+												});
+												this._controller.domElement.title = lang.controllerTitle;
+								},
+								get: function get$$1() {
+												return this._controller;
+								}
+				}]);
+				return PlayController;
 }(controllers.CustomController);
 
+/**
+ * node.js version of the synchronous download of the file.
+ * @author Andrej Hristoliubov https://anhr.github.io/AboutMe/
+ *
+ * @copyright 2011 Data Arts Team, Google Creative Lab
+ *
+ * @license under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
 function myRequest(options) {
 	this.loadXMLDoc = function () {
 		var req;
@@ -2901,7 +2921,6 @@ function sync(url, options) {
 		request.ProcessReqChange(function (myRequest) {
 			if (myRequest.processStatus200Error()) return;
 			response = myRequest.req.responseText;
-			console.log('loadFile.sync.onload() ' + url);
 			options.onload(response, url);
 			return;
 		});
@@ -2910,6 +2929,22 @@ function sync(url, options) {
 	return response;
 }
 
+/**
+ * node.js version of the load JavaScript file
+ * @author Andrej Hristoliubov https://anhr.github.io/AboutMe/
+ *
+ * Thanks to:
+ *http://javascript.ru/forum/events/21439-dinamicheskaya-zagruzka-skriptov.html
+ *https://learn.javascript.ru/onload-onerror
+ *
+ * @copyright 2011 Data Arts Team, Google Creative Lab
+ *
+ * @license under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
 function sync$1(src, options) {
 	options = options || {};
 	options.onload = options.onload || function () {};
@@ -3039,11 +3074,24 @@ var loadScript = {
   async: async
 };
 
+/**
+* node.js version of DropdownMenu
+*
+* @author Andrej Hristoliubov https://anhr.github.io/AboutMe/
+*
+* @copyright 2011 Data Arts Team, Google Creative Lab
+*
+* @license under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*/
 var optionsStyle = {
 	tag: 'style'
-};loadScript.sync('https://raw.githack.com/anhr/DropdownMenu/master/styles/menu.css', optionsStyle);
-loadScript.sync('https://raw.githack.com/anhr/DropdownMenu/master/styles/Decorations/transparent.css', optionsStyle);
-loadScript.sync('https://raw.githack.com/anhr/DropdownMenu/master/styles/Decorations/gradient.css', optionsStyle);
+};loadScript.sync('/anhr/DropdownMenu/master/styles/menu.css', optionsStyle);
+loadScript.sync('/anhr/DropdownMenu/master/styles/Decorations/transparent.css', optionsStyle);
+loadScript.sync('/anhr/DropdownMenu/master/styles/Decorations/gradient.css', optionsStyle);
 function create$1(arrayMenu, options) {
 	options = options || {};
 	options.elParent = options.elParent || document.querySelector('body');
@@ -3186,48 +3234,74 @@ function create$1(arrayMenu, options) {
 	return elMenu;
 }
 
+/**
+ * My dropdown menu for canvas in my version of [dat.gui](https://github.com/anhr/dat.gui) for playing of 3D objects in my projects.
+ *
+ * @author Andrej Hristoliubov https://anhr.github.io/AboutMe/
+ *
+ * @copyright 2011 Data Arts Team, Google Creative Lab
+ *
+ * @license under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
 function create$2(elContainer, options) {
 	var elCanvas = elContainer.querySelector('canvas');
 	options = options || {};
-	var playController = options.playController,
-	    stereoEffect = options.stereoEffect.stereoEffect,
-	    spatialMultiplexsIndexs = options.stereoEffect.spatialMultiplexsIndexs;
-	var menu = [];
-	if (options.stereoEffect) menu.push({
-		name: '⚭',
-		title: 'Stereo effects',
-		id: 'menuButtonStereoEffects',
-		drop: 'up',
-		items: [{
-			name: 'Mono',
-			radio: true,
-			checked: true,
-			onclick: function onclick(event) {
-				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(spatialMultiplexsIndexs.Mono);else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.Mono;
-				if (options.onFullScreen) options.onFullScreen(false);
-			}
-		}, {
-			name: 'Side by side',
-			radio: true,
-			onclick: function onclick(event) {
-				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(spatialMultiplexsIndexs.SbS);else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.SbS;
-				if (options.onFullScreen) options.onFullScreen(true);
-			}
-		}, {
-			name: 'Top and bottom',
-			radio: true,
-			onclick: function onclick(event) {
-				if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(spatialMultiplexsIndexs.TaB);else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.TaB;
-				if (options.onFullScreen) options.onFullScreen(true);
-			}
-		}]
-	});
-	if (options.playController !== undefined) {
+	if (options.THREE == undefined) options.THREE = THREE;
+	if (typeof options.THREE === "undefined") {
+		console.error('menuPlay.create: THREE = ' + THREE);
+		return;
+	}
+	var stereoEffect, spatialMultiplexsIndexs;
+	if (options.stereoEffect !== undefined) {
+		spatialMultiplexsIndexs = options.stereoEffect.spatialMultiplexsIndexs;
+		stereoEffect = options.stereoEffect.stereoEffect;
+	}
+	var menu = [],
+	    menuItemStereoEffect;
+	if (options.stereoEffect) {
+		menuItemStereoEffect = {
+			name: '⚭',
+			title: lang.stereoEffects,
+			id: 'menuButtonStereoEffects',
+			drop: 'up',
+			items: [{
+				name: lang.mono,
+				radio: true,
+				checked: true,
+				spatialMultiplex: spatialMultiplexsIndexs.Mono,
+				onclick: function onclick(event) {
+					if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(spatialMultiplexsIndexs.Mono);else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.Mono;
+				}
+			}, {
+				name: lang.sideBySide,
+				radio: true,
+				spatialMultiplex: spatialMultiplexsIndexs.SbS,
+				onclick: function onclick(event) {
+					if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(spatialMultiplexsIndexs.SbS);else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.SbS;
+					if (options.onFullScreen) options.onFullScreen(true);
+				}
+			}, {
+				name: lang.topAndBottom,
+				radio: true,
+				spatialMultiplex: spatialMultiplexsIndexs.TaB,
+				onclick: function onclick(event) {
+					if (stereoEffect.setSpatialMultiplex !== undefined) stereoEffect.setSpatialMultiplex(spatialMultiplexsIndexs.TaB);else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.TaB;
+					if (options.onFullScreen) options.onFullScreen(true);
+				}
+			}]
+		};
+		menu.push(menuItemStereoEffect);
+	}
+	if (options.player !== undefined) {
 		menu.push({
 			name: lang.prevSymbol,
 			title: lang.prevSymbolTitle,
 			onclick: function onclick(event) {
-				playController.prev();
+				options.player.prev();
 			}
 		});
 		menu.push({
@@ -3235,42 +3309,106 @@ function create$2(elContainer, options) {
 			title: lang.playTitle,
 			id: "menuButtonPlay",
 			onclick: function onclick(event) {
-				playController.play();
+				options.player.play3DObject();
 			}
 		});
 		menu.push({
 			name: lang.repeat,
-			title: lang.repeatOn,
+			title: options.player.getOptions().repeat ? lang.repeatOff : lang.repeatOn,
 			id: "menuButtonRepeat",
 			onclick: function onclick(event) {
-				playController.repeat();
+				options.player.repeat();
 			}
 		});
 		menu.push({
 			name: lang.nextSymbol,
 			title: lang.nextSymbolTitle,
 			onclick: function onclick(event) {
-				playController.next();
+				options.player.next();
 			}
 		});
 	}
-	menu.push({
-		style: 'float: right;',
-		id: "menuButtonFullScreen",
-		onclick: function onclick(event) {
+	function fullScreenSettings(canvasMenu) {
+		var fullScreen = false,
+		    style;
+		this.isFullScreen = function () {
+			return fullScreen;
+		};
+		this.setFullScreen = function (res, fs) {
+			var size = new options.THREE.Vector2();
+			res.renderer.getSize(size);
+			fullScreen = fs;
+			if (fullScreen) {
+				if (style !== undefined) {
+					res.renderer.setSize(style.sizeOriginal.x, style.sizeOriginal.y);
+					res.renderer.domElement.style.position = style.position;
+					res.renderer.domElement.style.left = style.left;
+					res.renderer.domElement.style.top = style.top;
+					res.renderer.domElement.style.width = style.width;
+					res.renderer.domElement.style.height = style.height;
+				}
+			} else {
+				if (style === undefined) {
+					style = {
+						sizeOriginal: new options.THREE.Vector2(),
+						position: res.renderer.domElement.style.position,
+						left: res.renderer.domElement.style.left,
+						top: res.renderer.domElement.style.top,
+						width: res.renderer.domElement.style.width,
+						height: res.renderer.domElement.style.height
+					};
+					res.renderer.getSize(style.sizeOriginal);
+				}
+				res.renderer.setSize(window.innerWidth, window.innerHeight);
+				res.renderer.domElement.style.position = 'fixed';
+				res.renderer.domElement.style.left = 0;
+				res.renderer.domElement.style.top = 0;
+				res.renderer.domElement.style.width = '100%';
+				res.renderer.domElement.style.height = '100%';
+			}
+			res.camera.aspect = size.x / size.y;
+			res.camera.updateProjectionMatrix();
+			fullScreen = !fullScreen;
+			canvasMenu.setFullScreenButton(fullScreen);
+		};
+		this.onclick = function () {
 			if (options.stereoEffect !== undefined && parseInt(stereoEffect.options.spatialMultiplex) !== spatialMultiplexsIndexs.Mono) {
 				alert('You can not change the fullscreen mode of the canvas if stereo effect mode is stereo.');
 				return false;
 			}
-			options.onFullScreenToggle();
+			if (options.onFullScreenToggle !== undefined) {
+				var res = options.onFullScreenToggle(fullScreen);
+				if (res === undefined) {
+					console.error('onFullScreenToggle: please return an object');
+					return false;
+				}
+				if (res.renderer === undefined) {
+					console.error('onFullScreenToggle: please return an object.renderer');
+					return false;
+				}
+			}
+			this.setFullScreen(res, fullScreen);
+			return fullScreen;
+		};
+	}
+	var fullScreenSettings = new fullScreenSettings(this);
+	this.isFullScreen = function () {
+		return fullScreenSettings.isFullScreen();
+	};
+	this.setFullScreen = function (fullScreen) {
+		return fullScreenSettings.setFullScreen(fullScreen);
+	};
+	menu.push({
+		style: 'float: right;',
+		id: "menuButtonFullScreen",
+		onclick: function onclick(event) {
+			fullScreenSettings.onclick();
 		}
 	});
-	if (options.playController !== undefined) {
-		var group = options.playController.getGroup();
+	if (options.player !== undefined) {
 		menu.push({
-			name: '<input type="range" min="0" max="' + (group.children.length - 1) + '" value="0" class="slider" id="sliderPosition">',
-			style: 'float: right;',
-			title: sliderTitle + 0
+			name: '<input type="range" min="0" max="' + (options.player.getOptions().marks - 1) + '" value="0" class="slider" id="sliderPosition">',
+			style: 'float: right;'
 		});
 	}
 	elMenu = create$1(menu, {
@@ -3278,19 +3416,24 @@ function create$2(elContainer, options) {
 		canvas: typeof elCanvas === "string" ? document.getElementById(elCanvas) : elCanvas,
 		decorations: 'Transparent'
 	});
-	var elSlider = elMenu.querySelector('#sliderPosition');
-	if (elSlider !== null) elSlider.onchange = function (event) {
-		playController.selectObject3D(elSlider.value);
-	};
+	elSlider = elMenu.querySelector('#sliderPosition');
+	if (elSlider !== null) {
+		elSlider.onchange = function (event) {
+			options.player.selectScene(parseInt(elSlider.value));
+		};
+		elSlider.oninput = function (event) {
+			options.player.selectScene(parseInt(elSlider.value));
+		};
+	}
 	this.setFullScreenButton = function (fullScreen) {
 		var elMenuButtonFullScreen = elContainer.querySelector('#menuButtonFullScreen');
 		if (elMenuButtonFullScreen === null) return true;
 		if (fullScreen) {
 			elMenuButtonFullScreen.innerHTML = '⤦';
-			elMenuButtonFullScreen.title = 'Non Full Screen';
+			elMenuButtonFullScreen.title = lang.nonFullScreen;
 		} else {
 			elMenuButtonFullScreen.innerHTML = '⤢';
-			elMenuButtonFullScreen.title = 'Full Screen';
+			elMenuButtonFullScreen.title = lang.fullScreen;
 		}
 		return true;
 	};
@@ -3314,13 +3457,52 @@ function create$2(elContainer, options) {
 			elSlider.parentElement.style.width = sliderWidth + 'px';
 		}
 	};
-	this.setIndex = function (index) {
+	this.setIndex = function (index, title) {
 		elSlider.value = index;
-		elSlider.title = sliderTitle + index;
+		elSlider.title = title;
 	};
-	var elMenu,
-	    elSlider,
-	    sliderTitle = 'current position of the playing is ';
+	this.onRenamePlayButtons = function (playing) {
+		var name, title;
+		if (playing) {
+			name = lang.pause;
+			title = lang.pauseTitle;
+		} else {
+			name = lang.playSymbol;
+			title = lang.playTitle;
+		}
+		var elMenuButtonPlay = elMenu.querySelector('#menuButtonPlay');
+		elMenuButtonPlay.innerHTML = name;
+		elMenuButtonPlay.title = title;
+	};
+	this.onChangeRepeat = function () {
+		var elMenuButtonRepeat = elMenu.querySelector('#menuButtonRepeat');
+		elMenuButtonRepeat.title = options.player.getOptions().repeat ? lang.repeatOff : lang.repeatOn;
+	};
+	this.onChangeScale = function (scale) {
+		if (options.player === undefined) return;
+		var optionsPlayer = options.player.getOptions();
+		optionsPlayer.marks = scale.marks;
+		optionsPlayer.min = scale.min;
+		optionsPlayer.max = scale.max;
+		elSlider.max = optionsPlayer.marks - 1;
+	};
+	this.setSpatialMultiplexs = function (mode, res) {
+		menuItemStereoEffect.items.forEach(function (item) {
+			if (item.spatialMultiplex === mode) {
+				if (!item.checked) {
+					item.elName.onclick({ target: item.elName });
+				}
+			}
+		});
+		if (mode !== spatialMultiplexsIndexs.Mono) fullScreenSettings.setFullScreen(res, false);
+	};
+	this.setPlayer = function (player) {
+		options.player = player;
+		player.controllers.push(this);
+		elSlider.value = 0;
+	};
+	if (options.player !== undefined) options.player.pushController(this);
+	var elMenu, elSlider;
 }
 
 exports.create = create$2;

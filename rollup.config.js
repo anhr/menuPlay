@@ -29,7 +29,13 @@ export default {
     format: 'umd',
     name: 'menuPlay',
     sourcemap: true,
-    banner: banner
+	  banner: banner,
+	/*
+		globals: {
+//			'http://localhost/anhr/three.js/dev/build/three.module.js': 'THREE',
+			'../../three.js/dev/build/three.module.js': 'THREE',
+	  },
+	  */
   }, {
     file: './build/menuPlay.module.js',
     format: 'es',
@@ -47,5 +53,12 @@ export default {
     }),
     cleanup()
 	],
+  /*
+	external: [
+//		'../../three.js/dev/',
+//		'http://localhost/anhr/three.js/dev/build/three.module.js',
+//		'http://localhost/anhr/three.js/dev/src/three.js',
+	],
+	*/
 
 };
