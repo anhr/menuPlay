@@ -16,6 +16,10 @@ or
 ```
 <script src="https://raw.githack.com/anhr/menuPlay/master/build/menuPlay.min.js"></script>
 ```
+or you can import menuPlay from menuPlay.js file in your JavaScript module. [Example.](https://raw.githack.com/anhr/myThreejs/master/Examples/html/)
+```
+import menuPlay from 'https://raw.githack.com/anhr/menuPlay/master/menuPlay.js';
+```
 
 Now you can use window.menuPlay for append to the dat.gui.
 
