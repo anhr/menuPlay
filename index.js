@@ -565,11 +565,14 @@ export function create( elContainer, options ) {
 
 		if ( options.player === undefined )
 			return;
+/*			
 		var optionsPlayer = options.player.getOptions();
 		optionsPlayer.marks = scale.marks;
 		optionsPlayer.min = scale.min;
 		optionsPlayer.max = scale.max;
 		elSlider.max = optionsPlayer.marks - 1;
+*/		
+		elSlider.max = scale.marks - 1;
 
 	}
 	this.setSpatialMultiplexs = function ( mode, res ) {
