@@ -19,9 +19,6 @@ import { lang } from '../../controllerPlay/master/index.js';
 import { create as dropdownMenuCreate } from '../../DropdownMenu/master/index.js';
 
 //Please download https://github.com/anhr/three.js to '../../DropdownMenu/master/' folder
-//import * as THREE from 'build/three.module.js';
-//import * as THREE from '../../three.js/dev/src/three.js';
-//import * as THREE from 'src/three.js';
 
 /**
  * @callback onFullScreen
@@ -90,10 +87,6 @@ export function create( elContainer, options ) {
 						if ( stereoEffect.setSpatialMultiplex !== undefined )
 							stereoEffect.setSpatialMultiplex( spatialMultiplexsIndexs.Mono );
 						else stereoEffect.options.spatialMultiplex = spatialMultiplexsIndexs.Mono;
-/*						
-						if ( options.onFullScreen )
-							options.onFullScreen( false );
-*/							
 
 					}
 				},
@@ -144,7 +137,6 @@ export function create( elContainer, options ) {
 			title: lang.prevSymbolTitle,
 			onclick: function ( event ) {
 
-//				playController.prev();
 				options.player.prev();
 
 			}
@@ -202,7 +194,6 @@ export function create( elContainer, options ) {
 		this.isFullScreen = function () { return fullScreen; }
 		this.setFullScreen = function ( res, fs ) {
 
-			//			var size = typeof THREE === "undefined" ? new Vector2() : new options.THREE.Vector2();
 			var size = new options.THREE.Vector2();
 			res.renderer.getSize( size );
 			fullScreen = fs;
@@ -282,55 +273,6 @@ export function create( elContainer, options ) {
 			}
 
 			this.setFullScreen( res, fullScreen );
-/*
-//			var size = typeof THREE === "undefined" ? new Vector2() : new options.THREE.Vector2();
-			var size = new options.THREE.Vector2();
-			res.renderer.getSize( size );
-			if ( fullScreen ) {
-
-				if ( style !== undefined ) {
-
-					//restore size of the canvas
-					res.renderer.setSize( style.sizeOriginal.x, style.sizeOriginal.y );
-					res.renderer.domElement.style.position = style.position;
-					res.renderer.domElement.style.left = style.left;
-					res.renderer.domElement.style.top = style.top;
-					res.renderer.domElement.style.width = style.width;
-					res.renderer.domElement.style.height = style.height;
-
-				}
-
-			} else {
-
-				if ( style === undefined ) {
-
-					style = {
-
-						sizeOriginal: new options.THREE.Vector2(),
-						position: res.renderer.domElement.style.position,
-						left: res.renderer.domElement.style.left,
-						top: res.renderer.domElement.style.top,
-						width: res.renderer.domElement.style.width,
-						height: res.renderer.domElement.style.height,
-
-					}
-					res.renderer.getSize( style.sizeOriginal );
-				}
-
-				//Full screen of the canvas
-				res.renderer.setSize( window.innerWidth, window.innerHeight );
-				res.renderer.domElement.style.position = 'fixed';
-				res.renderer.domElement.style.left = 0;
-				res.renderer.domElement.style.top = 0;
-				res.renderer.domElement.style.width = '100%';
-				res.renderer.domElement.style.height = '100%';
-
-			}
-			res.camera.aspect = size.x / size.y;
-			res.camera.updateProjectionMatrix();
-*/
-//			fullScreen = !fullScreen;
-//			canvasMenu.setFullScreenButton( fullScreen );
 			return fullScreen;
 
 		}
@@ -346,82 +288,6 @@ export function create( elContainer, options ) {
 		onclick: function ( event ) {
 
 			fullScreenSettings.onclick();
-/*
-			if (
-				( options.stereoEffect !== undefined )
-				&& ( parseInt( stereoEffect.options.spatialMultiplex ) !== spatialMultiplexsIndexs.Mono )
-			) {
-
-				alert( 'You can not change the fullscreen mode of the canvas if stereo effect mode is stereo.' );
-				return false;//do not change the fullscreen mode of the canvas if stereo effect is stereo
-
-			}
-			if ( options.onFullScreenToggle !== undefined ) {
-
-				var res = options.onFullScreenToggle();
-				if ( res === undefined ) {
-
-					console.error( 'onFullScreenToggle: please return an object' );
-					return false;
-
-				}
-				if ( res.renderer === undefined ) {
-
-					console.error( 'onFullScreenToggle: please return an object.renderer' );
-					return false;
-
-				}
-
-			}
-			var size = new options.THREE.Vector2();
-//				renderer = res.renderer,
-//				fullScreen = fullScreenSettings.fullScreen,
-//				style = fullScreenSettings.style;
-			res.renderer.getSize( size );
-			if ( fullScreenSettings.fullScreen ) {
-
-				if ( fullScreenSettings.style !== undefined ) {
-
-					//restore size of the canvas
-					res.renderer.setSize( fullScreenSettings.style.sizeOriginal.x, fullScreenSettings.style.sizeOriginal.y );
-					res.renderer.domElement.style.position = fullScreenSettings.style.position;
-					res.renderer.domElement.style.left = fullScreenSettings.style.left;
-					res.renderer.domElement.style.top = fullScreenSettings.style.top;
-					res.renderer.domElement.style.width = fullScreenSettings.style.width;
-					res.renderer.domElement.style.height = fullScreenSettings.style.height;
-
-				}
-
-			} else {
-
-				if ( fullScreenSettings.style === undefined ) {
-
-					fullScreenSettings.style = {
-
-						sizeOriginal: new options.THREE.Vector2(),
-						position: renderer.domElement.style.position,
-						left: renderer.domElement.style.left,
-						top: renderer.domElement.style.top,
-						width: renderer.domElement.style.width,
-						height: renderer.domElement.style.height,
-
-					}
-					res.renderer.getSize( fullScreenSettings.style.sizeOriginal );
-				}
-
-				//Full screen of the canvas
-				res.renderer.setSize( window.innerWidth, window.innerHeight );
-				res.renderer.domElement.style.position = 'fixed';
-				res.renderer.domElement.style.left = 0;
-				res.renderer.domElement.style.top = 0;
-				res.renderer.domElement.style.width = '100%';
-				res.renderer.domElement.style.height = '100%';
-
-			}
-			fullScreenSettings.fullScreen = !fullScreenSettings.fullScreen;
-			fullScreenSettings.canvasMenu.setFullScreenButton( fullScreenSettings.fullScreen );
-			return fullScreenSettings.fullScreen;
-*/
 
 		}
 
@@ -430,10 +296,9 @@ export function create( elContainer, options ) {
 	//Play slider
 	if ( options.player !== undefined ) {
 
-//		var group = options.playController.getGroup();
 		menu.push( {
 
-			name: '<input type="range" min="0" max="' + ( options.player.getOptions().marks - 1 ) + '" value="0" class="slider" id="sliderPosition">',
+			name: '<input type="range" min="0" max="' + ( options.player.getSettings().marks - 1 ) + '" value="0" class="slider" id="sliderPosition">',
 			style: 'float: right;',
 //			title: sliderTitle + 0,
 
@@ -573,6 +438,8 @@ export function create( elContainer, options ) {
 		elSlider.max = optionsPlayer.marks - 1;
 */		
 		elSlider.max = scale.marks - 1;
+		options.player.selectScene( 0 );
+//		this.setIndex( 0, scale.name + ': ' + scale.min );
 
 	}
 	this.setSpatialMultiplexs = function ( mode, res ) {
@@ -583,7 +450,6 @@ export function create( elContainer, options ) {
 
 				if ( !item.checked ) {
 
-//					item.checked = true;
 					item.elName.onclick( { target: item.elName });
 
 				}
@@ -604,7 +470,6 @@ export function create( elContainer, options ) {
 	}
 	if ( options.player !== undefined )
 		options.player.pushController( this );
-//		options.player.controllers.push( this );
 	var elMenu, elSlider;//, sliderTitle = lang.animateSceneId;//'Animate scene id ';
 
 }
