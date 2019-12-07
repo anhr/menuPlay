@@ -313,6 +313,12 @@ export function create( elContainer, options ) {
 		decorations: 'Transparent',
 
 	} );
+	if ( options.onOver !== undefined ) {
+
+		elMenu.addEventListener( 'mouseenter', function(event) { options.onOver( true ); });
+		elMenu.addEventListener( 'mouseleave', function ( event ) { options.onOver( false ); } );
+					
+	}
 	elSlider = elMenu.querySelector( '#sliderPosition' );
 	if ( elSlider !== null ) {
 
