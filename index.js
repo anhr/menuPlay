@@ -39,7 +39,7 @@ import { create as dropdownMenuCreate } from '../../DropdownMenu/master/index.js
  * See myThreejs\player.js for details.
  * @param {onFullScreen} [options.onFullScreen] fullscreen mode of the canvas. Defauilt is undefined
  * @param {onFullScreenToggle} [options.onFullScreenToggle] user toggled fullscreen mode of the canvas. Defauilt is undefined
- * @param {THREE} [options.THREE] THREE. Defauilt is undefined
+ * @param {THREE} [options.THREE] THREE {@link https://github.com/anhr/three.js|THREE}. Defauilt is undefined
  */
 export function create( elContainer, options ) {
 
