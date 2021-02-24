@@ -1,4 +1,7 @@
 # menuPlay
+
+**Deprecated! Please go to [canvasMenu](https://github.com/anhr/commonNodeJS/tree/master/canvasMenu).**
+
 node.js version of the menuPlay.
 My dropdown menu for canvas in my version of [dat.gui](https://github.com/anhr/dat.gui) for playing of 3D obects in my projects.
 
